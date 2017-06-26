@@ -4,8 +4,8 @@ import csv
 def antenna_classify ():
     # RESULT = ['apple','cherry','orange','pineapple','strawberry']
     # RESULT1 = ['a', 'b', 'c', 'd', 'e']
-    homes_path = '/Users/sumukhshivakumar/Desktop/vzhack/houseList.xlsx'
-    antennas_path = '/Users/sumukhshivakumar/Desktop/vzhack/antennaLocations.xlsx'
+    homes_path = 'houseList.xlsx'
+    antennas_path = 'antennaLocations.xlsx'
 
     #Clears previous output
     open('output.csv', 'w').close()
