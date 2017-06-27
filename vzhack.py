@@ -27,7 +27,7 @@ def antenna_classify ():
     homes_path = 'houseList.xlsx'
     antennas_path = 'antennaLocations.xlsx'
 
-    number_clusters = 60
+    number_clusters = 50 #50 has been best
 
     #Clears previous output
     open('output.csv', 'w').close()
@@ -66,7 +66,6 @@ def antenna_classify ():
     labeled_points = [[] for i in range(number_clusters)]
 
 
-
     for i in range(len(X)):
         # print("coordinate:",X[i], "label:", labels[i])
         labeled_points[labels[i]].append(X[i])
@@ -86,8 +85,8 @@ def antenna_classify ():
             # dist = sqrt((point[1] - centroids[index][1])**2 + (point[0] - centroids[index][0])**2)
             dist = haversine(point[1], point[0], centroids[index][1], centroids[index][0]) ###IN KM
             dist_ft = dist * 3280.84
-            print(dist)
-            print(dist_ft)
+            # print(dist)
+            # print(dist_ft)
             distances_from_centroid[index].append(dist_ft)
         index += 1
             # print (point)
@@ -107,22 +106,73 @@ def antenna_classify ():
     # print(type(labeled_points[0]))
     # print(type(centroids))
     # print(type(X))
-    print(distances_from_centroid)
+    # print(distances_from_centroid)
 
-
+    below = 0
+    above = 0
 
     for x in distances_from_centroid:
-        print(max(x))
+        maxim = max(x)
+        if maxim < 500:
+            below += 1
+        elif maxim > 500:
+            above += 1
+        # print(maxim)
     # print(min(distances_from_centroid[0]))
+    # print(below)
+    # print(above)
+
+
+    antenna_array = []
+
+    for row in range(1, antennas_sheet.nrows):
+        array_tuple = [antennas_sheet.cell_value(row, 0), antennas_sheet.cell_value(row, 1), antennas_sheet.cell_value(row, 2), antennas_sheet.cell_value(row, 3)]
+        antenna_array.append(array_tuple)
+
+    print(len(antenna_array))
+    print(len(centroids))
+
+
+    antennas_final = []
+    index_antenna = 0
+    for cent in centroids:
+        temp_best = []
+        for point in antenna_array:
+            antenna_type = ""
+            dist = sqrt((cent[0] - point[2])**2 + (cent[1] - point[3])**2)
+            if max(distances_from_centroid[index_antenna]) <= 100:
+                antenna_type = "T-1"
+            elif max(distances_from_centroid[index_antenna]) <= 200 and max(distances_from_centroid[index_antenna]) > 100:
+                antenna_type = "T-2"
+            elif max(distances_from_centroid[index_antenna]) <= 300 and max(distances_from_centroid[index_antenna]) > 200:
+                antenna_type = "T-3"
+            elif max(distances_from_centroid[index_antenna]) <= 400 and max(distances_from_centroid[index_antenna]) > 300:
+                antenna_type = "T-4"
+            else:
+                antenna_type = "T-5"
+            if (temp_best == []):
+                temp_best = [point, antenna_type]
+            elif (dist) < sqrt((temp_best[0][2] - cent[0])**2 + (temp_best[0][3] - cent[1])**2):
+                temp_best = [point, antenna_type]
+
+        antennas_final.append(temp_best)
+        index_antenna += 1
+
+
+
+
+    print(antennas_final)
+    print(len(antennas_final))
+
     plt.scatter(centroids[:, 0],centroids[:, 1], marker = "x", s=150, linewidths = 5, zorder = 10)
     plt.show()
 
 
 
     with open("output.csv",'w') as resultFile:
-        wr = csv.writer(resultFile, dialect='excel')
-        # wr.writerow(RESULT)
-        # wr.writerow(RESULT1)
-
+        wr = csv.writer(resultFile, delimiter = ",")
+        wr.writerow(['AntennaLocationCode', 'AntennaType'])
+        for elem in antennas_final:
+            wr.writerow([elem[0][0], elem[1]])
 
 antenna_classify()
