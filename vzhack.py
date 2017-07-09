@@ -29,7 +29,7 @@ def antenna_classify ():
     antennas_path = 'antennaLocations.xlsx' #Opening List of Antennas [Location Code, Addresss, LAT, LONG]
 
     #Number of Cluster Desired
-    number_clusters = 44 #50 has been best
+    number_clusters = 71 #44 has been best
 
     #Clears previous output
     open('output.csv', 'w').close()
